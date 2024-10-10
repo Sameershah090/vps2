@@ -15,6 +15,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     wget \
     unrar-free \
+    iptables \
+    ufw \
+    fail2ban \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -26,10 +29,21 @@ RUN wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz \
 # Set up ngrok
 RUN ngrok config add-authtoken 2nDRUrng2e2EYbiEgF4yevEHKjE_4a3JwKEHkwqq3uNC8sGzJ
 
-# Create a new user with sudo privileges
-RUN useradd -m -s /bin/bash ubuntu \
-    && echo "ubuntu:ubuntu" | chpasswd \
-    && adduser ubuntu sudo
+# Set up a more complete environment
+ENV LANG=C.UTF-8
+ENV TZ=Etc/UTC
+
+# Ensure proper timezone setting
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Check if ubuntu user exists, if not create it
+RUN id -u ubuntu &>/dev/null || useradd -m -s /bin/bash ubuntu
+
+# Set password for ubuntu user (change 'ubuntu' to a secure password)
+RUN echo "ubuntu:ubuntu" | chpasswd
+
+# Ensure ubuntu user is in sudo group
+RUN usermod -aG sudo ubuntu
 
 # Give ubuntu user passwordless sudo rights
 RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu
