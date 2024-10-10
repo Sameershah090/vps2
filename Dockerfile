@@ -26,9 +26,6 @@ RUN wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz \
 # Set up ngrok
 RUN ngrok config add-authtoken 2nDRUrng2e2EYbiEgF4yevEHKjE_4a3JwKEHkwqq3uNC8sGzJ
 
-# Create the necessary directory for SSH daemon
-RUN mkdir /var/run/sshd
-
 # Create a new user with sudo privileges
 RUN useradd -m -s /bin/bash ubuntu \
     && echo "ubuntu:ubuntu" | chpasswd \
@@ -52,4 +49,4 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/
 EXPOSE 22
 
 # Start SSH service and ngrok
-CMD service ssh start && ngrok tcp 22
+CMD mkdir -p /run/sshd && /usr/sbin/sshd && ngrok tcp 22
