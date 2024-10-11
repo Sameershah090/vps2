@@ -27,7 +27,7 @@ RUN wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz \
     && rm ngrok-v3-stable-linux-amd64.tgz
 
 # Set up ngrok
-RUN ngrok config add-authtoken 2nDRUrng2e2EYbiEgF4yevEHKjE_4a3JwKEHkwqq3uNC8sGzJ
+ENV NGROK_AUTHTOKEN=2nDRUrng2e2EYbiEgF4yevEHKjE_4a3JwKEHkwqq3uNC8sGzJ
 
 # Set up a more complete environment
 ENV LANG=C.UTF-8
@@ -62,5 +62,9 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/
 # Expose port 22 for SSH access
 EXPOSE 22
 
-# Start SSH service and ngrok
-CMD mkdir -p /run/sshd && /usr/sbin/sshd && ngrok tcp 22
+# Copy the custom entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Set the entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
